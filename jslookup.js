@@ -19,7 +19,8 @@ function getRecord() {
   $('#output').html(`<div class="pure-u-1-4"> <strong>Record type</strong> </div>
 	<div class="pure-u-1-4"> <strong>Value</strong> </div>
 	<div class="pure-u-1-4"> <strong>Service type</strong> </div>
-	<div class="pure-u-1-4"> <strong>Jaguar Server</strong> </div>`);
+  <div class="pure-u-1-4"> <strong>Jaguar Server</strong> </div>`);
+  $('#services').html(`<div class="pure-u-1-4"></div><div class="pure-u-1-4"> <strong>Services with Jaguar:</strong></div><div class="pure-u-1-4" id="oservices"></div><div class="pure-u-1-4"></div>`)
   var type = $("input[name='type']:checked").val();
   var hostname = $('#input').val();
 
@@ -36,11 +37,24 @@ function getRecord() {
 
 function formatOutput(result) {
   //formats output with the information provided
+
+  if(result["jaguar"] && !$('#oservices').text().includes(result["service"])) {
+    $('#oservices').append(result["service"].concat("</br>"));
+  }
+
+
+
   var output = `<div class="pure-u-1-4"> ${result["type"]} </div>
 <div class="pure-u-1-4" id="${result["type"]}"> ${result["record"]} </div>
 <div class="pure-u-1-4"> ${result["service"]} </div>
 <div class="pure-u-1-4"> ${result["jaguar"]} </div>
   `
+  
+
+
+
+
+
   $('#output').append(output);
   reloadCss();
 }
