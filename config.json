@@ -1,0 +1,24 @@
+{
+    "a": {
+      "199.199.151.77": "da3.deskmedia.com",
+      "216.188.200.20": "da4.jagcom.net",
+      "216.188.200.34": "da5.jagcom.net",
+      "216.188.200.36": "da6.jagcom.net",
+      "216.188.200.37": "da6.jagcom.net"
+    },
+    "mx": {
+      "mx1-us1.ppe-hosted.com.": "New spam filter",
+      "mx2-us1.ppe-hosted.com.": "New spam filter",
+      "nospam1.vircom.com.": "Old spam filter",
+      "nospam2.vircom.com.": "Old spam filter"
+    },
+    "ns": {
+      "ns1.jagcom.net.": "Jaguar Nameserver",
+      "ns2.jagcom.net.": "Jaguar Nameserver",
+      "dns1.name-services.com.": "Enom Nameserver",
+      "dns2.name-services.com.": "Enom Nameserver",
+      "dns3.name-services.com.": "Enom Nameserver",
+      "dns4.name-services.com.": "Enom Nameserver",
+      "dns5.name-services.com.": "Enom Nameserver"
+    }
+  }

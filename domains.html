@@ -1,138 +1,31 @@
-<script src="https://code.jquery.com/jquery-3.5.1.js" integrity="sha256-QWo7LDvxbWT2tbbQ97B53yJnYU3WhH/C8ycbRAkjPDc=" crossorigin="anonymous"></script>
+<head>
+	<script src="https://code.jquery.com/jquery-3.5.1.js" integrity="sha256-QWo7LDvxbWT2tbbQ97B53yJnYU3WhH/C8ycbRAkjPDc=" crossorigin="anonymous"></script>
+	<script src="jslookup.js"></script>
+	<link id="css" rel="stylesheet" href="css.css">
+	<link rel="stylesheet" href="https://unpkg.com/purecss@2.0.3/build/pure-min.css">
+</head>
 
-<div class="title">Enter a domain and choose which records you'd like to see, then click Test. Do not hit the enter button.</div>
-<form id="form">
-  <input id="input">
-  <input type="button" id="testbutt" onclick="return getRecord();" value="Test">
-  <input type="radio" id="allrecord" name="type" value="all" checked>
-  <label for="allrecord">All records</label>
-  <input type="radio" id="arecord" name="type" value="a">
-  <label for="arecord">A record</label>
-  <input type="radio" id="nsrecord" name="type" value="ns">
-  <label for="nsrecord">NS record</label>
-  <input type="radio" id="mxrecord" name="type" value="mx">
-  <label for="mxrecord">MX record</label>
-</form>
-Output goes here.
-<table id="outputt">
-  <tr>
-    <th>Record type</th>
-    <th>Value</th>
-    <th>Jaguar Server</th>
-  </tr>
-</table>
+<body onload="importConfig();">
+<div class="pure-g">
+    <div class="pure-u-1-1"><p>Check if a domain has services with Jaguar</p></div>
+	<div class="pure-u-1-3"><input id="input"></div>
+	<div class="pure-u-1-3">  
+		<input type="radio" id="allrecord" name="type" value="all" checked>
+		<label for="allrecord">All records</label>
+		<input type="radio" id="arecord" name="type" value="a">
+		<label for="arecord">A record</label>
+		<input type="radio" id="nsrecord" name="type" value="ns">
+		<label for="nsrecord">NS record</label>
+		<input type="radio" id="mxrecord" name="type" value="mx">
+		<label for="mxrecord">MX record</label>
+	</div>
+	<div class="pure-u-1-3"><input type="button" id="testbutt" onclick="return getRecord();" value="Test"></div>
+</div>
 
-<script>
-var jaguarservers = {
-  "a": {
-    "199.199.151.77": "da3.deskmedia.com",
-    "216.188.200.20": "da4.jagcom.net",
-    "216.188.200.34": "da5.jagcom.net",
-    "216.188.200.36": "da6.jagcom.net",
-    "216.188.200.37": "da6.jagcom.net"
-  },
-  "mx": {
-    "mx1-us1.ppe-hosted.com.": "New spam filter",
-    "mx2-us1.ppe-hosted.com.": "New spam filter",
-    "nospam1.vircom.com.": "Old spam filter",
-    "nospam2.vircom.com.": "Old spam filter"
-  },
-  "ns": {
-    "ns1.jagcom.net.": "Jaguar Nameserver",
-    "ns2.jagcom.net.": "Jaguar Nameserver",
-    "dns1.name-services.com.": "Enom Nameserver - May or may not be Jaguar, ask a hostmaster",
-    "dns2.name-services.com.": "Enom Nameserver - May or may not be Jaguar, ask a hostmaster",
-    "dns3.name-services.com.": "Enom Nameserver - May or may not be Jaguar, ask a hostmaster",
-    "dns4.name-services.com.": "Enom Nameserver - May or may not be Jaguar, ask a hostmaster",
-    "dns5.name-services.com.": "Enom Nameserver - May or may not be Jaguar, ask a hostmaster"
-  }
-}
-var recordtypes = ["a", "mx", "ns"]
-
-function getRecord() {
-  //clears output table, verifies input and record, sends to appropriate function
-  $('#outputt').html("");
-  var type = $("input[name='type']:checked").val();
-  var hostname = $('#input').val();
-
-  if (!hostname || hostname === "" || hostname.length === 0 || !(hostname.includes("."))) {
-    $('#output').html("Please input a valid domain");
-  } else {
-    if (type == "all") {
-      getAllRecords(hostname);
-    } else {
-      getSingleRecord(hostname, type);
-    }
-  }
-}
-
-function formatOutput(result) {
-  //formats output to create a table with the information
-  var output = ""
-  output = output.concat("<tr><td>", result["type"], "</td><td>", result["record"], "</td>");
-  
-  //check if the record points to any Jaguar specific information
-  if (result["jaguar"]) {
-    server = jaguarservers[result["type"]][result["record"]];
-  } else {
-    server = "NA"
-  }
-  output = output.concat("<td>", server, "</td></tr>");
-  $('#outputt').append(output);
-}
-
-function getSingleRecord(hostname, type) {
-  //creates dictionary with record information and sends to the output formatter
-  //output: {"type": type, "record": record, "jaguar": bool}
-
-  var url = "https://dns.google.com/resolve?name=".concat(hostname, "&type=", type)
-  $.ajax({
-    url: url,
-    complete: function(response) {
-      var answer = JSON.parse(response.responseText)["Answer"];
-
-      if (answer) {
-        for (i = 0; i < answer.length; i++) {
-          var jaguar = false;
-          var result = answer[i]["data"];
-          if (type == "mx") {
-		    //mx records contain priority. For this purpose, I don't care
-            result = result.split(" ")[1];
-          }
-          if (result in jaguarservers[type]) {
-            jaguar = true;
-          }
-          record = {
-            "type": type,
-            "record": result,
-            "jaguar": jaguar
-          }
-          formatOutput(record);
-        }
-      }
-    },
-    error: function() {
-      record = {
-        "type": "Error",
-        "record": "Error",
-        "jaguar": false
-      };
-      formatOutput(record);
-    }
-  })
-}
-
-function getAllRecords(hostname) {
-  //loops through record types and gets each record
-  for (i = 0; i < recordtypes.length; i++) {
-    getSingleRecord(hostname, recordtypes[i]);
-  }
-}
-</script>
-
-<style>
-th,
-td {
-	border: 1px solid black;
-}
-</style>
+<div class="pure-g" id="output">
+	<div class="pure-u-1-4"> <strong>Record type</strong> </div>
+	<div class="pure-u-1-4"> <strong>Value</strong> </div>
+	<div class="pure-u-1-4"> <strong>Service type</strong> </div>
+	<div class="pure-u-1-4"> <strong>Jaguar Server</strong> </div>
+</div>
+</body>
